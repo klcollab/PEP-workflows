@@ -2,6 +2,26 @@ This directory contains scripts for utilizing LLMs to perform Thematic Analysis 
 Victoria Clarke. It reads interview transcripts and outputs generated codes, initial themes, and reviewed themes
 (Phases 2, 3, and 4/5).
 
+## Workflow Description
+
+The workflow presented in these scripts follow a human-augmented or human-assist approach. When performing Thematic
+Analysis, a researcher will perform it in several steps. The goal here is to emulate those steps and to provide additional
+Qualitative Analysis outputs to enhance the researcher's work. Rather than giving an LLM the interview transcripts and
+asking it to perform Thematic Analysis and output a final report, we instead instruct the LLM to perform very specific
+tasks. The first task is to generate codes. Once both the researcher and LLM have output codes from their dataset, the
+researcher can then compare what they generated, with that of the model's output. This generated output will hopefully
+be useful for the researcher and provide additional codes that the researcher might have missed or not considered. At
+the end of each step, the researcher will finalize and approve the output, which can then be used as input for the next
+steps. After producing codes, the following steps would be generating broad themes, and then developing each theme for
+the entire dataset. Each of these steps, like what was described for codes, would be approved by the researcher before
+moving forward.
+
+This approach was taken primarily because LLMs have inherited biases, and they are unable to perform and reflexive
+analysis on their own biases. By performing Thematic Analysis in a step-by-step fashion, a researcher can take full
+control of what codes and themes that are being considered when producing a final report. They are able to accept or
+reject the output of the LLMs. It is our hope that the output will only be useful in helping the researcher perform
+thematic analysis, and not replace any of their work.
+
 ## Getting Started
 
 ### Running Ollama
