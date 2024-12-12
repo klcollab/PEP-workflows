@@ -1,2 +1,2 @@
-# QA-workflows
-A repository for Qualitative Analysis workflows
+# PEP-workflows
+A repository of Quantatative & Qualitative Analysis workflows for the PEP project
