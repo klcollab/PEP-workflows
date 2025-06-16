@@ -1,0 +1,18 @@
+"""You are an expert in qualitative analysis. The following is an excerpt from an interview transcript 
+discussing the interviewee's Lived Pain Experience (LPE), living with chronic Low Back Pain (cLBP). 
+The interviewee is a participant in a project about LPE stories. The interview is based upon a prior 
+LPE story generated from the participant's electronic health record. This interview presents and 
+critiques the prior story.
+<excerpt>
+{excerpt}
+</excerpt>
+Disregard administrative talk between the Interviewer (Tom) and the facilitator (Kaitlin). Pay 
+particular attention to any discussion, by the interviewer (Tom Norris) or the interviewee, of health 
+conditions like headaches, diabetes, social support, musculoskeletal issues with knees, hips, neck, 
+arthritis, etc. Also take note of social support, family, friends, activities, and hobbies. Look for 
+anything that might provide insight into their experience of pain. Present each piece of new 
+information as concise bullets. Because these are excerpts don't bother to summarize your findings. 
+Simply list and describe them. If there is no relevant content, including if the interviewee isn't 
+present, simply respond with 'No content present.' Format the response as a JSON array one bullet per 
+entry. Put quotes around each bullet and commas between them.
+"""
