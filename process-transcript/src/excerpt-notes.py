@@ -13,19 +13,35 @@ from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
 
 splitter = RecursiveCharacterTextSplitter(
-    chunk_size=2000,
-    chunk_overlap=250,
+    chunk_size=1000,
+    chunk_overlap=150,
     length_function=len,
     is_separator_regex=False,
 )
+
+def remove_markup(llmtxt):
+  if re.search('```*', llmtxt): # check for markup from the LLM
+    clean = ''
+    for line in llmtxt.split('\n'):
+      if line.startswith('```'): continue
+      clean += line
+    llmtxt = clean.strip()
+  return llmtxt
+
+def remove_reason(llmtxt):
+  loc = re.search('<think>', llmtxt)
+  if loc != None:
+    llmtxt = re.sub(r'<think>.*?</think>','',llmtxt,flags=re.DOTALL).strip()
+  return llmtxt
 
 def main(txtfn, notespromptfn):
   with open(txtfn,'r') as txtf: txt = txtf.read()
   excerpts = splitter.split_text(txt)
   with open(notespromptfn,'r') as ptf: notespt = ptf.read()
   # ignore 
-  #modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b']
-  modelnames = ['llama3.3:70b-instruct-q8_0']
+  modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b']
+  #modelnames = ['qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b']
+  #modelnames = ['llama3.3:70b-instruct-q8_0']
   for modelname in modelnames:
     print('Running using '+modelname)
     model = OllamaLLM(model=modelname, temperature=0.0, num_predict=-1)
@@ -37,13 +53,34 @@ def main(txtfn, notespromptfn):
       excerptnum += 1
       print('Processing excerpt '+str(excerptnum)+'/'+str(len(excerpts))+'\r',end='')
       notes_s = notes_chain_model.invoke({'excerpt': excerpt}).strip()
+      #print('DEBUG - These notes: \n'+notes_s)
       if (
           not re.search('[Nn]o content present.',notes_s) and
           not re.search('[Nn]o mention of',notes_s) and
+          not re.search('[Nn]o specific mention of',notes_s) and
+          not re.search('[Nn]o direct mention of',notes_s) and
+          not re.search('[Nn]othing mentioned',notes_s) and
           not re.search('[Nn]o relevant content',notes_s) and
           not re.search('[Nn]o discussion of',notes_s)
         ):
-        excerpt_notes = json.loads(notes_s)
+        notes_s = remove_markup(notes_s)
+        notes_s = remove_reason(notes_s)
+
+        try: excerpt_notes = json.loads(notes_s)
+        except json.decoder.JSONDecodeError:
+          print('\nDEBUG - These notes: \n'+notes_s)
+          except_prompt = PromptTemplate.from_template("""If the following JSON is not properly 
+formatted, reformat it. Do not otherwise comment. Just respond with the properly formatted JSON.
+<json>{json}</json>.
+"""
+                                                       )
+          except_chain_model = except_prompt | model | StrOutputParser()
+          reformatted = except_chain_model.invoke({'json': notes_s}).strip()
+          reformatted = remove_markup(reformatted)
+          reformatted = remove_reason(reformatted)
+          print('Reformatted\n'+reformatted)
+          excerpt_notes = json.loads(reformatted)
+          
         note_list += excerpt_notes
         
     notes_df = pd.DataFrame(note_list)

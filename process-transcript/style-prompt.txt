@@ -1,4 +1,0 @@
-"""You are a linguist with an expertise in linguistic style, idiom, pidgins, and creoles. The following is a transcript of an interview with a chronic low back pain (cLBP) patient.
-<transcript>{transcript}</transcript>
-Analyze the interviewee's language paying particular attention to their affect and attitude. Develop and present a detailed description of their linguistic style and affect. Also provide a short descriptive phrase for that style.
-"""

@@ -14,5 +14,6 @@ anything that might provide insight into their experience of pain. Present each 
 information as concise bullets. Because these are excerpts don't bother to summarize your findings. 
 Simply list and describe them. If there is no relevant content, including if the interviewee isn't 
 present, simply respond with 'No content present.' Format the response as a JSON array one bullet per 
-entry. Put quotes around each bullet and commas between them.
+entry. Put everything inside the JSON array. Do not add any extra text outside of the JSON array.
+Include only the bullets. Put quotes around each bullet and commas between them.
 """
