@@ -13,7 +13,10 @@ arthritis, etc. Also take note of social support, family, friends, activities, a
 anything that might provide insight into their experience of pain. Present each piece of new 
 information as concise bullets. Because these are excerpts don't bother to summarize your findings. 
 Simply list and describe them. If there is no relevant content, including if the interviewee isn't 
-present, simply respond with 'No content present.' Format the response as a JSON array one bullet per 
-entry. Put everything inside the JSON array. Do not add any extra text outside of the JSON array.
-Include only the bullets. Put quotes around each bullet and commas between them.
+present, simply respond with 'No content present.' Only take notes on what the interviewee says. Tom's
+(the interviewer) comments are only context, not primary content. Do not take notes on issues with this
+Zoom conference like not being able to share screens or internet/wifi connectivity. Format the response
+as a JSON array one bullet per entry. Put everything inside the JSON array. Do not add any extra text
+outside of the JSON array. Include only the bullets. Put quotes around each bullet and commas between
+them.
 """

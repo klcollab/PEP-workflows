@@ -8,8 +8,8 @@ def main(txtfn,pfn):
     txt = txtf.read()
   with open(pfn,'r') as pf:
     pt = pf.read()
-  # ignore 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b'
-  for modelname in ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'qwen3:32b-fp16']:
+  # ignore 'llama4:17b-scout-16e-instruct-q8_0'
+  for modelname in ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'qwen3:32b-fp16', 'llama4:16x17b']:
     print('Running using '+modelname)
     model = OllamaLLM(model=modelname, temperature=0.0, num_predict=-1)
     prompt = PromptTemplate.from_template(pt)

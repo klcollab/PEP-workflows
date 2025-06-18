@@ -38,7 +38,7 @@ def main(notes_files):
   keepdf = pd.DataFrame(keep)
   keepdf.columns = ['Note']
   now = datetime.now()
-  keepdf.to_csv('notes-'+'filtered-sim-'+str(SIM_THRESH)+'-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.csv', index=False)
+  keepdf.to_csv('notes-sim-'+str(SIM_THRESH)+'-filtered-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.csv', index=False)
 
 if __name__ == '__main__':
   import argparse
