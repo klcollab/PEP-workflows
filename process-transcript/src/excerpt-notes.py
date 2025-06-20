@@ -12,9 +12,14 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
 
+#modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b']
+modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'llama4:16x17b']
+#modelnames = ['tulu3:70b', 'phi4:latest', 'llama4:16x17b']
+#modelnames = ['llama3.3:70b-instruct-q8_0']
+#modelnames = ['llama4:16x17b']
 splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000,
-    chunk_overlap=150,
+    chunk_size=1400,
+    chunk_overlap=75,
     length_function=len,
     is_separator_regex=False,
 )
@@ -64,12 +69,6 @@ def main(txtfn, notespromptfn, run_filter):
   with open(txtfn,'r') as txtf: txt = txtf.read()
   excerpts = splitter.split_text(txt)
   with open(notespromptfn,'r') as ptf: notespt = ptf.read()
-  # ignore 
-  #modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b']
-  modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'llama4:16x17b']
-  #modelnames = ['tulu3:70b', 'phi4:latest', 'llama4:16x17b']
-  #modelnames = ['llama3.3:70b-instruct-q8_0']
-  #modelnames = ['llama4:16x17b']
   for modelname in modelnames:
     print('Running using '+modelname)
     model = OllamaLLM(model=modelname, temperature=0.0, num_predict=-1)
