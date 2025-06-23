@@ -38,34 +38,8 @@ def remove_reason(llmtxt):
   if loc != None:
     llmtxt = re.sub(r'<think>.*?</think>','',llmtxt,flags=re.DOTALL).strip()
   return llmtxt
-
-SIM_THRESH = 0.95
-def filter_notes(ndf,thresh):
-    # pick out the unique notes
-    embeddings = HuggingFaceEmbeddings(model_name="Alibaba-NLP/gte-base-en-v1.5", model_kwargs={'trust_remote_code': True, 'device': 'cpu'}, encode_kwargs={'normalize_embeddings': True})
-    vector = FAISS.from_documents([Document(x) for x in ndf['Note']], embeddings, normalize_L2=True)
-    total_notes = vector.index.ntotal
-    keep = []
-    for note in ndf['Note']:
-      if note in keep: continue
-      if vector.index.ntotal <= 0: break # we're done if we run out of notes
-      #simdocs = vector.similarity_search_with_relevance_scores(note,k=vector.index.ntotal,score_threshold=thresh)
-      simdocs = vector.similarity_search(note,k=vector.index.ntotal,score_threshold=thresh)
-      keep.append(note)
-      # log similars in the kill list just in case we want to vector.delete() later
-      kill = []
-      #for doc in [tup[0] for tup in simdocs]: kill.append([doc.id,doc.page_content])
-      for doc in simdocs: kill.append([doc.id,doc.page_content])
-      if len(kill) > 0:
-        kill_ids = [tup[0] for tup in kill]
-        if not vector.delete(kill_ids): warnings.Warn("Failed to delete entries from FAISS db.")
-
-    print('Done: '+str(len(keep))+'/'+str(total_notes)+' notes retained.')
-    keepdf = pd.DataFrame(keep)
-    keepdf.columns = ['Note']
-    return keepdf
   
-def main(txtfn, notespromptfn, run_filter):
+def main(txtfn, notespromptfn):
   with open(txtfn,'r') as txtf: txt = txtf.read()
   excerpts = splitter.split_text(txt)
   with open(notespromptfn,'r') as ptf: notespt = ptf.read()
@@ -121,12 +95,8 @@ formatted, reformat it. Do not otherwise comment. Just respond with the properly
     notesdf.columns = ['Note']
 
     now = datetime.now()
-    if (run_filter):
-      keepdf = filter_notes(notesdf,SIM_THRESH)
-      keepdf.to_csv('notes-'+'sim-'+str(SIM_THRESH)+'-'+'-'+modelname+'-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.csv', index=False)
-    else:
-      print('Pulled '+str(len(notesdf['Note']))+' from '+str(len(excerpts))+' excerpts.')
-      notesdf.to_csv('notes-'+modelname+'-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.csv', index=False)
+    print('Pulled '+str(len(notesdf['Note']))+' notes from '+str(len(excerpts))+' excerpts.')
+    notesdf.to_csv('notes-'+modelname+'-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.csv', index=False)
 
 if __name__ == '__main__':
   import argparse
@@ -134,6 +104,5 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-txt', '--transcript', type=str, default='none', required=True, help='Interview transcript.')
     parser.add_argument('-np', '--notes_prompt', type=str, default='none', required=True, help='Template format prompt for extracting notes.')
-    parser.add_argument('-fn', '--filter_notes', action='store_true', required=False, help='Whether or not to filter the notes by similarity.')
     args = parser.parse_args()
-  main(args.transcript,args.notes_prompt,args.filter_notes)
+  main(args.transcript,args.notes_prompt)

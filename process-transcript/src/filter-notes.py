@@ -18,22 +18,23 @@ def main(notes_files):
   # pick out the unique notes
   embeddings = HuggingFaceEmbeddings(model_name="Alibaba-NLP/gte-base-en-v1.5", model_kwargs={'trust_remote_code': True, 'device': 'cpu'}, encode_kwargs={'normalize_embeddings': True})
   vector = FAISS.from_documents([Document(x) for x in notes], embeddings, normalize_L2=True)
-  total_notes = vector.index.ntotal
-  SIM_THRESH = 0.95
+  total_notes = len(notes)
+  SIM_THRESH = 0.75
   keep = []
-  for note in notes:
+  while (len(notes) > 0):
+    note = notes.pop(0)
     if note in keep: continue
-    if vector.index.ntotal <= 0: break # we're done if we run out of notes
+    if len(notes) <= 0: break # we're done if we run out of notes
     simdocs = vector.similarity_search(note,k=vector.index.ntotal,score_threshold=SIM_THRESH)
     keep.append(note)
     # log similars in the kill list just in case we want to vector.delete() later
     kill = []
-    #for doc in [tup[0] for tup in simdocs]: kill.append([doc.id,doc.page_content])
-    for doc in simdocs: kill.append([doc.id,doc.page_content])
+    for doc in simdocs: kill.append(doc.page_content)
+    print('DEBUG - Removing '+str(len(kill))+'/'+str(len(notes))+' docs.')
     if len(kill) > 0:
-      kill_ids = [tup[0] for tup in kill]
-      if not vector.delete(kill_ids): warnings.Warn("Failed to delete entries from FAISS db.")
-
+      notes = list(set(notes)-set(kill))
+    print('DEBUG - '+str(len(notes))+' remain.')
+      
   print('Done: '+str(len(keep))+'/'+str(total_notes)+' notes retained.')
   keepdf = pd.DataFrame(keep)
   keepdf.columns = ['Note']
