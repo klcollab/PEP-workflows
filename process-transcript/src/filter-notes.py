@@ -8,6 +8,16 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
 
+def get_longest(docs):
+  if not docs or len(docs) <= 0: return ''
+  max_length = -1
+  max_note = ''
+  for doc in docs:
+    if len(doc.page_content) > max_length:
+      max_length = len(doc.page_content)
+      max_note = doc.page_content
+  return max_note
+
 def main(notes_files,st):
   notes = []
   for filen in notes_files:
@@ -15,6 +25,7 @@ def main(notes_files,st):
     print('Reading '+str(len(ndf['Note']))+' notes from '+filen)
     [notes.append(x) for x in ndf['Note']]
 
+  notes = sorted(notes)
   # pick out the unique notes
   embeddings = HuggingFaceEmbeddings(model_name="Alibaba-NLP/gte-base-en-v1.5", model_kwargs={'trust_remote_code': True, 'device': 'cpu'}, encode_kwargs={'normalize_embeddings': True})
   vector = FAISS.from_documents([Document(x) for x in notes], embeddings, normalize_L2=True)
@@ -25,15 +36,18 @@ def main(notes_files,st):
     if note in keep: continue
     if len(notes) <= 0: break # we're done if we run out of notes
     simdocs = vector.similarity_search(note,k=vector.index.ntotal,score_threshold=st)
-    keep.append(note)
+    longest = get_longest(simdocs)
+    keep.append(longest)
     # log similars in the kill list just in case we want to vector.delete() later
     kill = []
     for doc in simdocs: kill.append(doc.page_content)
     #print('DEBUG - Removing '+str(len(kill))+'/'+str(len(notes))+' docs.')
     if len(kill) > 0:
       notes = list(set(notes)-set(kill))
+    notes = sorted(notes)
     #print('DEBUG - '+str(len(notes))+' remain.')
-      
+
+  keep = sorted(set(keep))
   print('Done: '+str(len(keep))+'/'+str(total_notes)+' notes retained.')
   keepdf = pd.DataFrame(keep)
   keepdf.columns = ['Note']
