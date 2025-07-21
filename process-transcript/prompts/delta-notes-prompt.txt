@@ -1,0 +1,29 @@
+"""Here is a story told by someone with chronic Low Back Pain (cLBP):
+
+<story>
+{story}
+</story>
+
+Here is an excerpt from the transcript of an interview discussing the
+previous version of their story:
+
+<excerpt>
+{excerpt}
+</excerpt>
+
+Given the story and the transcript excerpt, identify parts of the
+story they identified as mistakes, wrong, or incorrect. List those
+issues that should be corrected. Also identify new information in the
+transcript that isn't in the story. And list that new
+information. Because these are excerpts, do not summarize the
+findings. Simply list and describe them. If there is nothing to
+report, simply respond with 'No content present.' Only take notes on
+what the interviewee says. Tom's (the interviewer) comments are only
+context, not primary content. Do not take notes on issues with this
+Zoom conference like not being able to share screens or internet/wifi
+connectivity. Format the response as a Python list of strings, one
+bullet per entry. Put all the notes inside the Python list. Do not
+add any extra text outside of the JSON array. Include only the
+bullets. Put quotes around each bullet and commas between them.
+
+"""
