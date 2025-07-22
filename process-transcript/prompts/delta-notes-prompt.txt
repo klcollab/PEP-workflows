@@ -21,9 +21,8 @@ report, simply respond with 'No content present.' Only take notes on
 what the interviewee says. Tom's (the interviewer) comments are only
 context, not primary content. Do not take notes on issues with this
 Zoom conference like not being able to share screens or internet/wifi
-connectivity. Format the response as a Python list of strings, one
-bullet per entry. Put all the notes inside the Python list. Do not
-add any extra text outside of the JSON array. Include only the
-bullets. Put quotes around each bullet and commas between them.
+connectivity. Format the response as a list of bullets, one bullet
+line. Put all the notes in the bullet list. Do not add any extra text
+outside the list. Include only the bullets.
 
 """

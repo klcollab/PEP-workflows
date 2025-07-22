@@ -8,7 +8,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:latest', 'llama4:16x17b']
+modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:latest', 'llama4:16x17b','zephyr:latest']
 #modelnames = ['zephyr:latest']
 #modelnames = ['llama4:16x17b']
 splitter = RecursiveCharacterTextSplitter(
@@ -45,10 +45,10 @@ def remove_reason(llmtxt):
   return llmtxt
 
 def remove_envelope_text(llmtxt):
-  m = re.search('\[', llmtxt)
-  if m != 'None': llmtxt = llmtxt[m.start(0):]
-  m = re.search('\]', llmtxt)
-  if m != 'None': llmtxt = llmtxt[:m.end(0)]
+  bndx = llmtxt.find('[')
+  if bndx > -1: llmtxt = llmtxt[bndx:]
+  bndx = llmtxt.rfind(']')
+  if bndx > -1: llmtxt = llmtxt[:bndx+1]
   return llmtxt
 
 def skipit(note):
@@ -71,6 +71,14 @@ def skipit(note):
 
 excerpts = splitter.split_text(tran)
 
+code_model = OllamaLLM(model='codestral:latest', temperature=0.0,num_predict=-1)
+code_prompt = PromptTemplate.from_template(
+  """Reformat this list of bullets into a Python list. Use a flat list
+of strings, one note per per array element. Do not otherwise
+comment. Just respond with the properly formatted list.
+<bullets>{bullets}</bullets>.  
+""")
+
 now = datetime.now()
 for modelname in modelnames:
   model = OllamaLLM(model=modelname, temperature=0.0, num_predict=-1)
@@ -83,23 +91,28 @@ for modelname in modelnames:
     print(modelname+' is taking notes on excerpt '+str(excerptnum)+'/'+str(len(excerpts))+'\r',end='')
     notes_s = notes_chain_model.invoke({'story': story, 'excerpt': excerpt}).strip()
     if (not skipit(notes_s)):
-      notes_s = remove_markup(notes_s)
+      #notes_s = remove_markup(notes_s)
       notes_s = remove_reason(notes_s)
-
+      code_chain_model = code_prompt | code_model | StrOutputParser()
+      notes_s = code_chain_model.invoke({'bullets': notes_s})
+      notes_s = notes_s.encode('utf-8').decode('unicode_escape')
       try: excerpt_notes = json.loads(notes_s)
       except json.decoder.JSONDecodeError:
         print('\nDEBUG - These notes: \n'+notes_s)
-        except_prompt = PromptTemplate.from_template("""If the
-following string is not properly formatted as a Python list, reformat
-it. Use a flat list of string, one note per per array element. Do not
-otherwise comment. Just respond with the properly formatted list.
+        except_prompt = PromptTemplate.from_template(
+          """If the following string is not properly formatted as a Python list,
+reformat it. Use a flat list of string, one note per per array
+element. Do not otherwise comment. Just respond with the properly
+formatted list.  
 <python_list>{python_list}</python_list>.
 """)
-        except_chain_model = except_prompt | model | StrOutputParser()
+        except_model = OllamaLLM(model='codestral:latest', temperature=0.0,num_predict=-1)
+        except_chain_model = except_prompt | except_model | StrOutputParser()
         reformatted = except_chain_model.invoke({'python_list': notes_s}).strip()
         reformatted = remove_markup(reformatted)
         reformatted = remove_reason(reformatted)
         reformatted = remove_envelope_text(reformatted)
+        reformatted = reformatted.encode('utf-8').decode('unicode_escape')
         print('Reformatted\n'+reformatted)
         excerpt_notes = json.loads(reformatted)
 
