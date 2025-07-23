@@ -9,7 +9,7 @@ def main(notesfn, storypromptfn, stylefn):
   notesdf = pd.read_csv(notesfn)
   with open(storypromptfn,'r') as ptf: storypt = ptf.read()
   with open(stylefn,'r') as stf: style = stf.read()
-  modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'qwen3:32b-fp16', 'llama4:16x17b']
+  modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:14b', 'qwen3:32b-fp16', 'llama4:16x17b']
   #modelnames = ['llama3.3:70b-instruct-q8_0']
   for modelname in modelnames:
     print('Running using '+modelname)

@@ -16,7 +16,7 @@ with open(args.story_prompt,'r') as f: sp = f.read()
 
 modelname = 'llama3.3:70b-instruct-q8_0'
 #modelname ='tulu3:70b'
-#modelname ='phi4:latest' 
+#modelname ='phi4:14b' 
 #modelname ='llama4:16x17b'
 model = OllamaLLM(model=modelname, temperature=0.0, num_predict=-1)
 

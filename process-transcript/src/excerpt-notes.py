@@ -8,10 +8,10 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-#modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b']
-#modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:latest', 'llama4:16x17b']
-modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:latest', 'llama4:16x17b', 'zephyr:latest']
-#modelnames = ['tulu3:70b', 'phi4:latest', 'llama4:16x17b']
+#modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:14b', 'qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b']
+#modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:14b', 'llama4:16x17b']
+modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'llama4:16x17b', 'zephyr:7b']
+#modelnames = ['tulu3:70b', 'phi4:14b', 'llama4:16x17b']
 #modelnames = ['llama3.3:70b-instruct-q8_0']
 #modelnames = ['llama4:16x17b']
 splitter = RecursiveCharacterTextSplitter(

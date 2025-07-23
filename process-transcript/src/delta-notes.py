@@ -9,9 +9,9 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 DEBUG = False
-modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:latest', 'llama4:16x17b','zephyr:latest']
-#modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:latest', 'zephyr:latest']
-#modelnames = ['zephyr:latest']
+#modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'llama4:16x17b','zephyr:7b']
+#modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'zephyr:7b']
+modelnames = ['phi4:14b', 'zephyr:7b']
 #modelnames = ['llama4:16x17b']
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=750,
