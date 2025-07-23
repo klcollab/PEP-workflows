@@ -18,7 +18,7 @@ modelname = 'llama3.3:70b-instruct-q8_0'
 #modelname ='tulu3:70b'
 #modelname ='phi4:latest' 
 #modelname ='llama4:16x17b'
-model = OllamaLLM(model=modelname, temperature=0.6, num_predict=-1)
+model = OllamaLLM(model=modelname, temperature=0.0, num_predict=-1)
 
 prompt = PromptTemplate.from_template(sp)
 chain_model = prompt | model | StrOutputParser()

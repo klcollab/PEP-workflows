@@ -8,7 +8,9 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+DEBUG = False
 modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:latest', 'llama4:16x17b','zephyr:latest']
+#modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:latest', 'zephyr:latest']
 #modelnames = ['zephyr:latest']
 #modelnames = ['llama4:16x17b']
 splitter = RecursiveCharacterTextSplitter(
@@ -73,7 +75,7 @@ excerpts = splitter.split_text(tran)
 
 code_model = OllamaLLM(model='codestral:latest', temperature=0.0,num_predict=-1)
 code_prompt = PromptTemplate.from_template(
-  """Reformat this list of bullets into a Python list. Use a flat list
+  """Reformat this list of bullets into a JSON array. Use a flat list
 of strings, one note per per array element. Do not otherwise
 comment. Just respond with the properly formatted list.
 <bullets>{bullets}</bullets>.  
@@ -91,16 +93,18 @@ for modelname in modelnames:
     print(modelname+' is taking notes on excerpt '+str(excerptnum)+'/'+str(len(excerpts))+'\r',end='')
     notes_s = notes_chain_model.invoke({'story': story, 'excerpt': excerpt}).strip()
     if (not skipit(notes_s)):
+      if DEBUG: print('\nDEBUG - Raw Notes: \n'+notes_s)
       #notes_s = remove_markup(notes_s)
       notes_s = remove_reason(notes_s)
       code_chain_model = code_prompt | code_model | StrOutputParser()
       notes_s = code_chain_model.invoke({'bullets': notes_s})
       notes_s = notes_s.encode('utf-8').decode('unicode_escape')
+      if DEBUG: print('\nDEBUG - JSON array: \n'+notes_s)
       try: excerpt_notes = json.loads(notes_s)
       except json.decoder.JSONDecodeError:
-        print('\nDEBUG - These notes: \n'+notes_s)
+        print('\nDEBUG - Post exception: \n'+notes_s)
         except_prompt = PromptTemplate.from_template(
-          """If the following string is not properly formatted as a Python list,
+          """If the following string is not properly formatted as a JSON array,
 reformat it. Use a flat list of string, one note per per array
 element. Do not otherwise comment. Just respond with the properly
 formatted list.  
