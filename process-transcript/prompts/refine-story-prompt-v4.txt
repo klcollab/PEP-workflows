@@ -1,0 +1,17 @@
+"""Here are some notes about how the script below should be changed:
+<transcript_notes>
+{transcript_notes}
+</transcript_notes>
+And here is a script told by someone with chronic Low Back Pain (cLBP):
+<script>
+{script}
+</script>
+
+Given the transcript notes, revise the script. Correct any errors
+identified in the notes. If no errors were mentioned, do not change
+that part of the script. Preserve the linguistic style of the script.
+Keep as much of the script as possible intact. Do not change the text
+unless you must. Do not rewrite any part of the script unless
+correcting an error.
+
+"""

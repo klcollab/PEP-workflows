@@ -1,0 +1,17 @@
+"""Here are two stories told in the first person.
+Story 1:
+<style_example>
+{style}
+</style_example>
+
+and Story 2:
+
+<doc_to_rewrite>
+{doc}
+</doc_to_rewrite>
+
+Retell the second story so that it matches the style of the first
+one. Try to capture the tone, "voice", formality, and vocabulary as
+best you can.
+
+"""

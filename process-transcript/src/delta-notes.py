@@ -9,10 +9,10 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 DEBUG = False
-#modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'llama4:16x17b','zephyr:7b']
-#modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'zephyr:7b']
-modelnames = ['phi4:14b', 'zephyr:7b']
-#modelnames = ['llama4:16x17b']
+modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'llama4:16x17b','zephyr:7b','wizardlm2:8x22b']
+#modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'llama4:16x17b']
+#modelnames = ['zephyr:7b','wizardlm2:8x22b']
+#modelnames = ['wizardlm2:8x22b']
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=750,
     chunk_overlap=50,
@@ -73,7 +73,7 @@ def skipit(note):
 
 excerpts = splitter.split_text(tran)
 
-code_model = OllamaLLM(model='codestral:latest', temperature=0.0,num_predict=-1)
+code_model = OllamaLLM(model='codestral:22b', temperature=0.0,num_predict=-1)
 code_prompt = PromptTemplate.from_template(
   """Reformat this list of bullets into a JSON array. Use a flat list
 of strings, one note per per array element. Do not otherwise
@@ -110,8 +110,7 @@ element. Do not otherwise comment. Just respond with the properly
 formatted list.  
 <python_list>{python_list}</python_list>.
 """)
-        except_model = OllamaLLM(model='codestral:latest', temperature=0.0,num_predict=-1)
-        except_chain_model = except_prompt | except_model | StrOutputParser()
+        except_chain_model = except_prompt | code_model | StrOutputParser()
         reformatted = except_chain_model.invoke({'python_list': notes_s}).strip()
         reformatted = remove_markup(reformatted)
         reformatted = remove_reason(reformatted)
