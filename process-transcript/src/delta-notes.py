@@ -9,7 +9,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 DEBUG = False
-modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'llama4:16x17b','zephyr:7b','wizardlm2:8x22b']
+modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'llama4:16x17b','zephyr:7b','wizardlm2:8x22b','olmo2:13b']
 #modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'llama4:16x17b']
 #modelnames = ['zephyr:7b','wizardlm2:8x22b']
 #modelnames = ['wizardlm2:8x22b']
@@ -124,5 +124,5 @@ formatted list.
   notesdf = pd.DataFrame(note_list)
   notesdf.columns = ['Note']
     
-  print('Pulled '+str(len(notesdf['Note']))+' notes from '+str(len(excerpts))+' excerpts.')
+  print('\n'+modelname+' pulled '+str(len(notesdf['Note']))+' notes from '+str(len(excerpts))+' excerpts.')
   notesdf.to_csv('delta-notes-'+modelname+'-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.csv', index=False)
