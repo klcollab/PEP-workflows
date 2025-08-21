@@ -14,16 +14,16 @@ with open(args.story,'r') as f: story = f.read()
 with open(args.delta_notes,'r') as f: dnotes = f.read()
 with open(args.story_prompt,'r') as f: sp = f.read()
 
-modelname = 'llama3.3:70b-instruct-q8_0'
-#modelname ='tulu3:70b'
-#modelname ='phi4:14b' 
-#modelname ='llama4:16x17b'
-model = OllamaLLM(model=modelname, temperature=0.0, num_predict=-1)
+modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'llama4:16x17b','zephyr:7b','wizardlm2:8x22b','tulu3:70b','olmo2:13b']
+#modelnames = ['llama4:16x17b','wizardlm2:8x22b']
 
-prompt = PromptTemplate.from_template(sp)
-chain_model = prompt | model | StrOutputParser()
-print('Refining the story ...')
-response = chain_model.invoke({'script': story, 'transcript_notes': dnotes}).strip()
-lpestory = response+'\n'
 now = datetime.now()
-with open('lpestory-'+modelname+'-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.txt','w') as f: f.write(lpestory)
+for modelname in modelnames:
+  model = OllamaLLM(model=modelname, temperature=0.0, num_predict=-1)
+
+  prompt = PromptTemplate.from_template(sp)
+  chain_model = prompt | model | StrOutputParser()
+  print('Refining the story with '+modelname)
+  response = chain_model.invoke({'script': story, 'transcript_notes': dnotes}).strip()
+  lpestory = response+'\n'
+  with open('lpestory-'+modelname+'-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.txt','w') as f: f.write(lpestory)

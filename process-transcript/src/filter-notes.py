@@ -18,7 +18,13 @@ def get_longest(docs):
       max_note = doc.page_content
   return max_note
 
+def model_from_filename(fn):
+  pre = fn[0:fn.find(':')]
+  return pre[pre.rfind('-')+1:]
+
 def main(notes_files,st):
+  #now = datetime.now() # get the clock early for crisper diffs
+  input_id = '+'.join([model_from_filename(x) for x in notes_files])+':'
   notes = []
   for filen in notes_files:
     ndf = pd.read_csv(filen)
@@ -51,8 +57,8 @@ def main(notes_files,st):
   print('Done: '+str(len(keep))+'/'+str(total_notes)+' notes retained.')
   keepdf = pd.DataFrame(keep)
   keepdf.columns = ['Note']
-  now = datetime.now()
-  keepdf.to_csv('notes-sim-'+str(st)+'-filtered-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.csv', index=False)
+  #keepdf.to_csv('notes-sim-'+str(st)+'-filtered-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.csv', index=False)
+  keepdf.to_csv('notes-sim-'+str(st)+'-filtered-'+input_id+'.csv', index=False)
 
 if __name__ == '__main__':
   import argparse
