@@ -100,14 +100,15 @@ for modelname in modelnames:
       notes_s = code_chain_model.invoke({'bullets': notes_s})
       notes_s = notes_s.encode('utf-8').decode('unicode_escape')
       if DEBUG: print('\nDEBUG - JSON array: \n'+notes_s)
-      try: excerpt_notes = json.loads(notes_s)
+      try: excerpt_notes = json.loads(notes_s,strict=False)
       except json.decoder.JSONDecodeError:
         print('\nDEBUG - Post exception: \n'+notes_s)
         except_prompt = PromptTemplate.from_template(
           """If the following string is not properly formatted as a JSON array,
 reformat it. Use a flat list of string, one note per per array
 element. Do not otherwise comment. Just respond with the properly
-formatted list.  
+formatted list. Pay close attention to quotes. If a list element starts with 
+a double quote, it must end with a double quote.
 <python_list>{python_list}</python_list>.
 """)
         except_chain_model = except_prompt | code_model | StrOutputParser()
@@ -117,7 +118,7 @@ formatted list.
         reformatted = remove_envelope_text(reformatted)
         reformatted = reformatted.encode('utf-8').decode('unicode_escape')
         print('Reformatted\n'+reformatted)
-        excerpt_notes = json.loads(reformatted)
+        excerpt_notes = json.loads(reformatted,strict=False)
 
       note_list += excerpt_notes
 
