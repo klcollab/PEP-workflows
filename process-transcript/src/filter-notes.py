@@ -27,11 +27,12 @@ def main(notes_files,st):
   input_id = '+'.join([model_from_filename(x) for x in notes_files])+':'
   notes = []
   for filen in notes_files:
-    ndf = pd.read_csv(filen)
+    ndf = pd.read_csv(filen,converters={i: str for i in range(100)}) # "converters={i: str for i in range(100)}" - hack to read 'None' as str
     print('Reading '+str(len(ndf['Note']))+' notes from '+filen)
     [notes.append(x) for x in ndf['Note']]
 
   notes = sorted(notes)
+    
   # pick out the unique notes
   embeddings = HuggingFaceEmbeddings(model_name="Alibaba-NLP/gte-base-en-v1.5", model_kwargs={'trust_remote_code': True, 'device': 'cpu'}, encode_kwargs={'normalize_embeddings': True})
   vector = FAISS.from_documents([Document(x) for x in notes], embeddings, normalize_L2=True)

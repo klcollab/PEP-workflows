@@ -1,5 +1,6 @@
 import re
 import json
+import csv
 import warnings
 from datetime import datetime
 import pandas as pd
@@ -8,12 +9,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-#modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:14b', 'qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b']
-#modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'phi4:14b', 'llama4:16x17b']
-modelnames = ['llama3.3:70b-instruct-q8_0', 'phi4:14b', 'llama4:16x17b', 'zephyr:7b']
-#modelnames = ['tulu3:70b', 'phi4:14b', 'llama4:16x17b']
-#modelnames = ['llama3.3:70b-instruct-q8_0']
-#modelnames = ['llama4:16x17b']
+modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'olmo2:13b', 'phi4:14b', 'qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b', 'wizardlm2:8x22b']
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=1400,
     chunk_overlap=75,
@@ -40,6 +36,16 @@ def main(txtfn, notespromptfn):
   with open(txtfn,'r') as txtf: txt = txtf.read()
   excerpts = splitter.split_text(txt)
   with open(notespromptfn,'r') as ptf: notespt = ptf.read()
+
+  #code_model = OllamaLLM(model='gpt-oss:20b', temperature=0.0, num_predict=-1)
+  code_model = OllamaLLM(model='codestral:22b', temperature=0.0, num_predict=-1)
+  code_prompt = PromptTemplate.from_template(
+    """Reformat this list of bullets into a JSON array. Use a flat list
+of strings, one note per per array element. Do not otherwise
+comment. Just respond with the properly formatted list.
+<bullets>{bullets}</bullets>.  
+""")
+
   for modelname in modelnames:
     print('Running using '+modelname)
     model = OllamaLLM(model=modelname, temperature=0.0, num_predict=-1)
@@ -71,21 +77,40 @@ def main(txtfn, notespromptfn):
         notes_s = remove_markup(notes_s)
         notes_s = remove_reason(notes_s)
 
+        code_chain_model = code_prompt | code_model | StrOutputParser()
+        notes_s = code_chain_model.invoke({'bullets': notes_s})
+        notes_s = notes_s.encode('utf-8').decode('unicode_escape')
+
         try: excerpt_notes = json.loads(notes_s)
         except json.decoder.JSONDecodeError:
           print('\nDEBUG - These notes: \n'+notes_s)
-          except_prompt = PromptTemplate.from_template("""If the following JSON is not properly 
-formatted, reformat it. Do not otherwise comment. Just respond with the properly formatted JSON.
-<json>{json}</json>.
-"""
-                                                       )
-          except_chain_model = except_prompt | model | StrOutputParser()
-          reformatted = except_chain_model.invoke({'json': notes_s}).strip()
+          except_prompt = PromptTemplate.from_template(
+            """If the following string is not properly formatted as a JSON array,
+reformat it. Use a flat list of string, one note per per array
+element. Do not otherwise comment. Just respond with the properly
+formatted list. Pay close attention to quotes. If a list element starts with 
+a double quote, it must end with a double quote.
+<python_list>{python_list}</python_list>.
+""")
+          except_chain_model = except_prompt | code_model | StrOutputParser()
+          reformatted = except_chain_model.invoke({'python_list': notes_s}).strip()
           reformatted = remove_markup(reformatted)
           reformatted = remove_reason(reformatted)
           print('Reformatted\n'+reformatted)
-          excerpt_notes = json.loads(reformatted)
-          
+          try: excerpt_notes = json.loads(reformatted)
+          except json.decoder.JSONDecodeError:
+            print('\nDEBUG - Failed again: \n'+notes_s)
+            except_prompt = PromptTemplate.from_template(
+              """Correct this JSON syntax. Make sure every entry is quoted properly. 
+              Do not comment on it. Merely correct it. Double check the quoting.
+              <python_list>{python_list}</python_list>.
+              """
+            )
+            except_chain_model = except_prompt | code_model | StrOutputParser()
+            reformatted = except_chain_model.invoke({'python_list': notes_s}).strip()
+            reformatted = remove_markup(reformatted)
+            reformatted = remove_reason(reformatted)
+            excerpt_notes = json.loads(reformatted)
         note_list += excerpt_notes
         
     notesdf = pd.DataFrame(note_list)
@@ -93,7 +118,7 @@ formatted, reformat it. Do not otherwise comment. Just respond with the properly
 
     now = datetime.now()
     print('Pulled '+str(len(notesdf['Note']))+' notes from '+str(len(excerpts))+' excerpts.')
-    notesdf.to_csv('notes-'+modelname+'-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.csv', index=False)
+    notesdf.to_csv('notes-'+modelname+'-'+str(now.date())+'-'+str(now.hour)+str(now.minute)+str(now.second)+'.csv', index=False, quoting=csv.QUOTE_ALL)
 
 if __name__ == '__main__':
   import argparse
