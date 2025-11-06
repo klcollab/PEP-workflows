@@ -1,0 +1,7 @@
+"""The following is a lived pain experience (LPE) story from a chronic Low Back Pain (cLBP) patient. Also attached arfe CSV-formatted survey data from the patients electronic health record (EHR).
+Here is the survey data:
+{survey_data}
+And here is the story:
+{lpe_story}
+Please analyze both the survey data and the LPE story and assess the Clinical Utility (CU) of the story.
+"""
