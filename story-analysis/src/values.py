@@ -1,3 +1,11 @@
+"""
+Search for variables in a set of participant records - basically just `grep`
+Input:
+  List of variables (e.g. C_ANBMI, C_ANBMISRCL, C_ANBMICAT), one per line.
+  CSV record rows formatted like:
+    Variable,Variable Description,0:Baseline,4:week 4,8:week 8,12:week 12, ...
+Output - CSV files with just those rows
+"""
 import pandas as pd
 import csv
 import argparse

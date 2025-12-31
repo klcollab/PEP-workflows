@@ -1,3 +1,11 @@
+"""
+Column insert variable descriptions between variable name and longitudinal measures
+Inputs:
+  CSV formatted data dictionary. E.g.
+    Domain,"Variable Description","Key Analysis Variable","Flags for Analysis","ANALYSIS DATASET(S) INCLUSION","CB STANDARIZED variable
+  List of variables (e.g. C_ANBMI, C_ANBMISRCL, C_ANBMICAT), one per line
+Output - CSV with variable descriptions as the 2nd column
+"""
 import pandas as pd
 import argparse
 parser = argparse.ArgumentParser()
