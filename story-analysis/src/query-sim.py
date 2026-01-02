@@ -38,11 +38,12 @@ vector = FAISS.from_documents([Document(x) for x in stories], embeddings, normal
 
 querydf = pd.read_csv(args.themes)
 for ndx,row in querydf.iterrows():
-  simstories = vector.similarity_search(row.iloc[0],k=vector.index.ntotal,score_threshold=args.sim_thresh)
+  query = '\n'.join(row)
+  simstories = vector.similarity_search(query,k=vector.index.ntotal,score_threshold=args.sim_thresh)
   matches = []
   for simstory in simstories:
     txt = simstory.page_content
     match = storydf[storydf['Stories'] == txt]
     matches.append(list(match['Files'])[0])
-  print('Query '+str(ndx),end=': ')
+  print(row.iloc[0]+': ',end='')
   print(matches)
