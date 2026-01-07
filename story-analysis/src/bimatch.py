@@ -209,7 +209,8 @@ embeddings = HuggingFaceEmbeddings(model_name=modelname, model_kwargs={"trust_re
 #  Theme-to-Story Search: Find stories most relevant to each theme
 story_vdb = FAISS.from_documents([Document(x) for x in stories], embeddings, normalize_L2=True)
 ti_name = args.themes
-ti_name = ti_name.replace("kept", "theme_indexed")
+ti_out = ti_name.replace("kept", "theme_indexed")
+if ti_out == ti_name: ti_out = Path(ti_name).stem + '_theme_indexed' + '.csv'
 tidf = pd.DataFrame()
 themedf = pd.read_csv(args.themes)
 fails = 0
@@ -230,14 +231,15 @@ for ndx, row in themedf.iterrows():
     successes = successes + 1
   tirow = pd.DataFrame({"match num": str(len(matches)), "theme": row.iloc[0], "matches": [matches]})
   tidf = pd.concat([tidf, tirow])
-tidf.to_csv(ti_name, index=False)
+tidf.to_csv(ti_out, index=False)
 print_stats(successes, fails, "themes", "stories")
 
 ##
 # Story-to-Theme Search: Find themes most relevant to each story
 theme_vdb = FAISS.from_documents([Document(x) for x in themes], embeddings, normalize_L2=True)
 si_name = args.themes
-si_name = si_name.replace("kept", "story_indexed")
+si_out = si_name.replace("kept", "story_indexed")
+if si_out == si_name: si_out = Path(si_name).stem + '_story_indexed' + '.csv'
 sidf = pd.DataFrame()
 fails = 0
 successes = 0
@@ -254,5 +256,5 @@ for ndx, row in storydf.iterrows():
     successes = successes + 1
   sirow = pd.DataFrame({"match num": str(len(matches)), "file": row["Files"], "theme": [matches]})
   sidf = pd.concat([sidf, sirow])
-sidf.to_csv(si_name, index=False)
+sidf.to_csv(si_out, index=False)
 print_stats(successes, fails, "stories", "themes")
