@@ -32,9 +32,10 @@ def main(notes_files,st):
     [notes.append(x) for x in ndf['Note']]
 
   notes = sorted(notes)
-    
+
   # pick out the unique notes
-  embeddings = HuggingFaceEmbeddings(model_name="Alibaba-NLP/gte-base-en-v1.5", model_kwargs={'trust_remote_code': True, 'device': 'cpu'}, encode_kwargs={'normalize_embeddings': True})
+  #embeddings = HuggingFaceEmbeddings(model_name="Alibaba-NLP/gte-base-en-v1.5", model_kwargs={'trust_remote_code': True, 'device': 'cpu'}, encode_kwargs={'normalize_embeddings': True})
+  embeddings = HuggingFaceEmbeddings(model_name="Qwen/Qwen3-Embedding-8B", model_kwargs={'trust_remote_code': True, 'device': 'cuda'}, encode_kwargs={'normalize_embeddings': True})
   vector = FAISS.from_documents([Document(x) for x in notes], embeddings, normalize_L2=True)
   total_notes = len(notes)
   keep = []
