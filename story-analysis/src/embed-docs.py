@@ -55,7 +55,7 @@ if Path(prefix+'embn.csv').exists():
 # Skip documents that already have embeddings to enable incremental processing
 if 'report_names' not in locals(): report_names = []
 embs = []
-embeddings = HuggingFaceEmbeddings(model_name=modelname, model_kwargs={'trust_remote_code': True, 'device': 'cpu'})
+embeddings = HuggingFaceEmbeddings(model_name=modelname, model_kwargs={'trust_remote_code': True, 'device': 'cuda'})
 for report in args.reports:
   if 'embdf' in locals() and Path(report).stem in embdf.index: continue
   print('Embedding '+report)

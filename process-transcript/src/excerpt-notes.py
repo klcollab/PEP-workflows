@@ -7,9 +7,10 @@ import pandas as pd
 from langchain_ollama import OllamaLLM
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'olmo2:13b', 'phi4:14b', 'qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b', 'wizardlm2:8x22b']
+#modelnames = ['llama3.3:70b-instruct-q8_0', 'tulu3:70b', 'olmo2:13b', 'phi4:14b', 'qwen3:32b-fp16', 'llama4:17b-scout-16e-instruct-q8_0', 'llama4:16x17b', 'wizardlm2:8x22b']
+modelnames = ['gemma3:27b', 'mistral-small3.2:24b', 'olmo-3.1:32b', 'phi4:14b', 'zephyr:7b', 'granite4:3b', 'llama3.3:70b', 'llama4:16x17b', 'wizard-vicuna-uncensored:30b']
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=1400,
     chunk_overlap=75,
@@ -31,19 +32,20 @@ def remove_reason(llmtxt):
   if loc != None:
     llmtxt = re.sub(r'<think>.*?</think>','',llmtxt,flags=re.DOTALL).strip()
   return llmtxt
-  
+
 def main(txtfn, notespromptfn):
   with open(txtfn,'r') as txtf: txt = txtf.read()
   excerpts = splitter.split_text(txt)
   with open(notespromptfn,'r') as ptf: notespt = ptf.read()
 
   #code_model = OllamaLLM(model='gpt-oss:20b', temperature=0.0, num_predict=-1)
-  code_model = OllamaLLM(model='codestral:22b', temperature=0.0, num_predict=-1)
+  #code_model = OllamaLLM(model='codestral:22b', temperature=0.0, num_predict=-1)
+  code_model = OllamaLLM(model='devstral-small-2:24b', temperature=0.0, num_predict=-1)
   code_prompt = PromptTemplate.from_template(
     """Reformat this list of bullets into a JSON array. Use a flat list
 of strings, one note per per array element. Do not otherwise
 comment. Just respond with the properly formatted list.
-<bullets>{bullets}</bullets>.  
+<bullets>{bullets}</bullets>.
 """)
 
   for modelname in modelnames:
@@ -88,7 +90,7 @@ comment. Just respond with the properly formatted list.
             """If the following string is not properly formatted as a JSON array,
 reformat it. Use a flat list of string, one note per per array
 element. Do not otherwise comment. Just respond with the properly
-formatted list. Pay close attention to quotes. If a list element starts with 
+formatted list. Pay close attention to quotes. If a list element starts with
 a double quote, it must end with a double quote.
 <python_list>{python_list}</python_list>.
 """)
@@ -101,7 +103,7 @@ a double quote, it must end with a double quote.
           except json.decoder.JSONDecodeError:
             print('\nDEBUG - Failed again: \n'+notes_s)
             except_prompt = PromptTemplate.from_template(
-              """Correct this JSON syntax. Make sure every entry is quoted properly. 
+              """Correct this JSON syntax. Make sure every entry is quoted properly.
               Do not comment on it. Merely correct it. Double check the quoting.
               <python_list>{python_list}</python_list>.
               """
@@ -112,7 +114,7 @@ a double quote, it must end with a double quote.
             reformatted = remove_reason(reformatted)
             excerpt_notes = json.loads(reformatted)
         note_list += excerpt_notes
-        
+
     notesdf = pd.DataFrame(note_list)
     notesdf.columns = ['Note']
 
